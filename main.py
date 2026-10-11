@@ -1,43 +1,52 @@
 """
-Simple 2D grid game: move a player across a 5x5 board.
+Simple 2D grid game: move '@' to 'X' avoiding '#'.
 """
+import sys
 
-WIDTH, HEIGHT = 5, 5
-OBSTACLES = {(2, 2)}
-PLAYER_POS = [0, 0]
+GRID = [
+    list("##########"),
+    list("#        #"),
+    list("#  ####  #"),
+    list("#  #  #  #"),
+    list("#  ####  #"),
+    list("#        #"),
+    list("##########"),
+]
 
-def display():
-    for y in range(HEIGHT):
-        row = ''
-        for x in range(WIDTH):
-            if [x, y] == PLAYER_POS:
-                row += 'P'
-            elif (x, y) in OBSTACLES:
-                row += '#'
+PLAYER = [1, 1]
+TARGET = [5, 8]
+
+MOVES = {'w': (-1, 0), 's': (1, 0), 'a': (0, -1), 'd': (0, 1)}
+
+def draw():
+    for y, row in enumerate(GRID):
+        line = ''
+        for x, ch in enumerate(row):
+            if [y, x] == PLAYER:
+                line += '@'
+            elif [y, x] == TARGET:
+                line += 'X'
             else:
-                row += '.'
-        print(row)
+                line += ch
+        print(line)
 
-def move(cmd):
-    dirs = {'w': (0, -1), 's': (0, 1), 'a': (-1, 0), 'd': (1, 0)}
-    if cmd not in dirs:
-        return False
-    dx, dy = dirs[cmd]
-    nx, ny = PLAYER_POS[0] + dx, PLAYER_POS[1] + dy
-    if 0 <= nx < WIDTH and 0 <= ny < HEIGHT and (nx, ny) not in OBSTACLES:
-        PLAYER_POS[0], PLAYER_POS[1] = nx, ny
-        return True
-    return False
+def move(key):
+    if key not in MOVES:
+        return
+    dy, dx = MOVES[key]
+    y, x = PLAYER[0] + dy, PLAYER[1] + dx
+    if GRID[y][x] != '#':
+        PLAYER[0], PLAYER[1] = y, x
 
 def main():
     while True:
-        display()
-        cmd = input("Move (w/a/s/d) or q to quit: ").strip().lower()
-        if cmd == 'q':
-            print("Goodbye!")
+        draw()
+        if PLAYER == TARGET:
+            print("You win!")
             break
-        if not move(cmd):
-            print("Can't move there!")
+        key = input("Move (WASD): ").lower()
+        move(key)
+        print("\n" * 2)
 
 if __name__ == "__main__":
     main()
